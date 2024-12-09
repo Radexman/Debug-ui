@@ -5,6 +5,7 @@ import GUI from 'lil-gui';
 
 // Debug UI
 const gui = new GUI();
+const debugObject = {};
 
 // Base
 
@@ -15,12 +16,19 @@ const canvas = document.querySelector('canvas.webgl');
 const scene = new THREE.Scene();
 
 // Object
+debugObject.color = '#3a6ea6';
+
 const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
-const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true });
+const material = new THREE.MeshBasicMaterial({ color: debugObject.color });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
-gui.add(mesh.position, 'y').min(-3).max(3).step(0.01).name('Elevation');
+gui.add(mesh.position, 'x').min(-3).max(3).step(0.01).name('x axis');
+gui.add(mesh.position, 'y').min(-3).max(3).step(0.01).name('y axis');
+gui.add(mesh.position, 'z').min(-3).max(1).step(0.01).name('z axis');
+gui.add(mesh, 'visible');
+gui.add(material, 'wireframe');
+gui.addColor(debugObject, 'color').onChange(() => material.color.set(debugObject.color));
 
 // Sizes
 const sizes = {
