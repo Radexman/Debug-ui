@@ -4,8 +4,29 @@ import gsap from 'gsap';
 import GUI from 'lil-gui';
 
 // Debug UI
-const gui = new GUI();
-const debugObject = {};
+const gui = new GUI({
+	width: 300,
+	title: 'Debug UI',
+	closeFolders: false,
+});
+
+// gui.close();
+// gui.hide();
+
+window.addEventListener('keydown', (event) => {
+	if (event.key === 'g') {
+		gui.show(gui._hidden);
+	}
+});
+
+// Object
+const debugObject = {
+	color: '#db0f0f',
+	subdivision: 2,
+	spin: () => {
+		gsap.to(mesh.rotation, { y: mesh.rotation.y + Math.PI * 2 });
+	},
+};
 
 // Base
 
@@ -15,20 +36,40 @@ const canvas = document.querySelector('canvas.webgl');
 // Scene
 const scene = new THREE.Scene();
 
-// Object
-debugObject.color = '#3a6ea6';
-
 const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
-const material = new THREE.MeshBasicMaterial({ color: debugObject.color });
+const material = new THREE.MeshBasicMaterial({ color: debugObject.color, wireframe: true });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
-gui.add(mesh.position, 'x').min(-3).max(3).step(0.01).name('x axis');
-gui.add(mesh.position, 'y').min(-3).max(3).step(0.01).name('y axis');
-gui.add(mesh.position, 'z').min(-3).max(1).step(0.01).name('z axis');
-gui.add(mesh, 'visible');
-gui.add(material, 'wireframe');
-gui.addColor(debugObject, 'color').onChange(() => material.color.set(debugObject.color));
+// GUI Folders
+const axesTweaks = gui.addFolder('Axes');
+const utilityTweaks = gui.addFolder('Utilities');
+const otherTweaks = gui.addFolder('Other');
+// otherTweaks.close();
+
+axesTweaks.add(mesh.position, 'x').min(-3).max(3).step(0.01).name('x axis');
+axesTweaks.add(mesh.position, 'y').min(-3).max(3).step(0.01).name('y axis');
+axesTweaks.add(mesh.position, 'z').min(-3).max(1).step(0.01).name('z axis');
+utilityTweaks.add(mesh, 'visible');
+utilityTweaks.add(material, 'wireframe');
+otherTweaks.addColor(debugObject, 'color').onChange(() => material.color.set(debugObject.color));
+otherTweaks.add(debugObject, 'spin').name('spin');
+otherTweaks
+	.add(debugObject, 'subdivision')
+	.min(1)
+	.max(10)
+	.step(1)
+	.onFinishChange(() => {
+		mesh.geometry.dispose();
+		mesh.geometry = new THREE.BoxGeometry(
+			1,
+			1,
+			1,
+			debugObject.subdivision,
+			debugObject.subdivision,
+			debugObject.subdivision
+		);
+	});
 
 // Sizes
 const sizes = {
